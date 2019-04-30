@@ -1,14 +1,14 @@
-from bangs.speedrun_com import SpeedrunComApiHelpers
+from .speedruncom import SpeedrunComApiHelpers
 
 
 class SkillSet:
     tier = None
 
     def __init__(self):
-        self.skills = self._get_skills()
+        self._get_skills()
 
     def __iter__(self):
-        return self.skills
+        return iter(self.skills)
 
     def _get_skills(self):
         self.skills = [
@@ -23,6 +23,8 @@ class TierOneSkillSet(SkillSet):
 
     def tierone(self, *args):
         """Bang that returns current tier one special bangs."""
+        if self.skills is None:
+            self._get_skills()
         return 'Tier One: ' + ', '.join(self.skills)
 
     def tierone_help(self, *args):
@@ -34,7 +36,7 @@ class TierOneSkillSet(SkillSet):
             "!tierone_help tierone"
             "!tierone_help tierone_help"
         """
-        if len(args) != 0:
+        if len(args) == 0:
             return self.tierone_help.__doc__
 
         skill = args[0]
@@ -59,4 +61,5 @@ class TierOneSkillSet(SkillSet):
         if len(args) == 0:
             return self.leaderboard.__doc__
         args = args[0].strip().split('/')
-        return SpeedrunComApiHelpers.get_top_str(args)
+        print(args)
+        return SpeedrunComApiHelpers.get_top_str(*args)

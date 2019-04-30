@@ -1,14 +1,15 @@
 import os
 import requests
 
+from . import skills
+
 
 class SpecialResponse:
-    def __init__(self, bang_ability, empty_response):
-        self.bang_ability = bang_ability
+    def __init__(self, bang_skill):
+        self.bang_skill = bang_skill
 
-    def process_args(self, args):
-        args = args.split()
-        return self.bang_ability(*args)
+    def process_args(self, *args):
+        return self.bang_skill(*args)
 
 
 class Bang:
@@ -17,11 +18,10 @@ class Bang:
         self.response = response
 
 
-class SpecialBang(Bang):
-    def __init__(self, command, response, bang_ability, empty_response):
-        super(Bang, self).__init__(command, response)
-        self.response = SpecialResponse(bang_ability, empty_response)
-        self.empty_response = empty_response
+class SpecialBang:
+    def __init__(self, command, bang_skill):
+        self.command = command
+        self.response = SpecialResponse(bang_skill)
 
 
 class BangsApi:
@@ -39,11 +39,16 @@ class BangsApi:
         }
         self.response = requests.get(self.endpoint, headers=headers).json()
 
-    def get_user_bangs(self, user_id):
-        return [
+    def get_user_bangs(self, user_id, update=False):
+        if update:
+            self.get_response()
+        print(f'Getting bangs for user-id {user_id}')
+        bangs = [
             Bang(usrbng['command'], usrbng['response'])
             for usrbng in self.response
         ]
+        print(f'Bangs: {[bang.command for bang in bangs]}')
+        return bangs
 
 
 class BangSet:
@@ -53,7 +58,10 @@ class BangSet:
     def __init__(self, user_id):
         self.user_id = user_id
         self.bangs_api = BangsApi()
-        self.bangs = self.bangs_api.get_user_bangs(self.user_id)
+        self.update()
+
+    def update(self):
+        self.bangs = self.bangs_api.get_user_bangs(self.user_id, update=True)
         self.bang_commands = [bang.command for bang in self.bangs]
 
     def __iter__(self):
@@ -72,16 +80,16 @@ class BangSet:
             raise BangSet.BangNotFound('{} has no {} bang.'.format(self.user_id, item))
 
 
-class SpecialBangSet(BangSet):  # TODO
+class SpecialBangSet(BangSet):
 
-    def __iter__(self):
-        return iter([])
+    def __init__(self, user_id):
+        self.user_id = user_id
+        self.tier_one = skills.TierOneSkillSet()
+        self.update()
 
-    def __contains__(self):
-        return False
-
-    def keys(self):
-        return []
-
-    def __getitem__(self, item):
-        raise BangSet.BangNotFound('{} has no {} bang.'.format(self.user_id, item))
+    def update(self):
+        self.bangs = [
+            SpecialBang(skill, getattr(self.tier_one, skill))
+            for skill in self.tier_one
+        ]
+        self.bang_commands = [bang.command for bang in self.bangs]

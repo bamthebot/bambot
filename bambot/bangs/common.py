@@ -4,26 +4,6 @@ import requests
 from . import skills
 
 
-class SpecialResponse:
-    def __init__(self, bang_skill):
-        self.bang_skill = bang_skill
-
-    def process_args(self, *args):
-        return self.bang_skill(*args)
-
-
-class Bang:
-    def __init__(self, command, response):
-        self.command = command
-        self.response = response
-
-
-class SpecialBang:
-    def __init__(self, command, bang_skill):
-        self.command = command
-        self.response = SpecialResponse(bang_skill)
-
-
 class BangsApi:
     endpoint = os.getenv('BANGS_ENDPOINT')
     token = os.getenv('BANGS_TOKEN')
@@ -49,6 +29,12 @@ class BangsApi:
         ]
         print(f'Bangs: {[bang.command for bang in bangs]}')
         return bangs
+
+
+class Bang:
+    def __init__(self, command, response):
+        self.command = command
+        self.response = response
 
 
 class BangSet:
@@ -78,6 +64,20 @@ class BangSet:
             return next(b.response for b in self.bangs if b.command == item)
         except StopIteration:
             raise BangSet.BangNotFound('{} has no {} bang.'.format(self.user_id, item))
+
+
+class SpecialBang:
+    def __init__(self, command, bang_skill):
+        self.command = command
+        self.response = SpecialResponse(bang_skill)
+
+
+class SpecialResponse:
+    def __init__(self, bang_skill):
+        self.bang_skill = bang_skill
+
+    def process_args(self, *args):
+        return self.bang_skill(*args)
 
 
 class SpecialBangSet(BangSet):

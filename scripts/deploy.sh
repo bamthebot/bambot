@@ -1,0 +1,5 @@
+#!/bin/bash
+TAG=$1
+docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD 
+docker tag bambot twitchbambot/bambot:$TAG
+docker push twitchbambot/bambot:$TAG

@@ -62,4 +62,7 @@ class TierOneSkillSet(SkillSet):
             return self.leaderboard.__doc__
         args = args[0].strip().split('/')
         print(args)
-        return SpeedrunComApiHelpers.get_top_str(*args)
+        try:
+            return SpeedrunComApiHelpers.get_top_str(*args)
+        except IndexError:
+            return 'Speedrun search failed. Try adapting your parameters.'

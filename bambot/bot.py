@@ -11,20 +11,25 @@ class TwitchBot:
     bang_prefix = os.getenv('COMMAND_PREFIX', '!')
     not_found_response = os.getenv('NOT_FOUND_RESPONSE', 'Bang not found, please try with: ')
 
-    def __init__(self, channel, channel_token, user_id):
-        self.channel = channel
-        self.channel_token = channel_token
-        self.user_id = user_id
-        self.irc_connection = TwitchIrcConnection(channel, self.nick, self.token)
-        self.user_bang_set = BangSet(user_id)
-        self.user_special_bang_set = SpecialBangSet(user_id)
+    def __init__(self, user):
+        self.user = user
+        self.channel = user.channel
+        self.channel_token = user.channel_token
+        self.user_id = user.user_id
+        self.irc_connection = TwitchIrcConnection(self.channel, self.nick, self.token)
+        self.user_bang_set = BangSet(self.user_id)
+        self.user_special_bang_set = SpecialBangSet(self.user_id)
+        self.connecting = False
 
     async def handle_connection(self):
+        self.connecting = True
         if self.irc_connection.websocket is None:
             print('Websocket not instantiated. Creating websocket.')
             await self.irc_connection.connect()
-        async for message in self.irc_connection:
-            await self.handle_message(message)
+        while self.irc_connection.websocket.open:
+            print(f'Handling {self.channel}\'s connection.')
+            async for message in self.irc_connection:
+                await self.handle_message(message)
 
     async def handle_message(self, message):
         if self.is_bang(message):
@@ -73,3 +78,6 @@ class TwitchBot:
 
     def get_commands(self):
         return list(self.user_special_bang_set) + list(self.user_bang_set)
+
+    async def close_connection(self):
+        await self.irc_connection.disconnect()

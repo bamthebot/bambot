@@ -48,3 +48,7 @@ class TwitchIrcConnection:
                 yield ''
             channel_message = ':'.join(channel_message[2:])
             yield channel_message
+
+    async def disconnect(self):
+        await self.websocket.send(f'PART #{self.channel}')
+        await self.websocket.close()

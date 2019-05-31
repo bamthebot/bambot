@@ -1,6 +1,6 @@
 dist: xenial
 language: python
-environement:
+env:
 - ENVIRONMENT=test
 - BOT_NICKNAME="bamthebot"
 - COMMAND_PREFIX="!"

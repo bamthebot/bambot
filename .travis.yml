@@ -10,7 +10,7 @@ environement:
 - BANGS_TOKEN="TODO"
 - USERS_TOKEN="TODO"
 - TWITCH_URI="wss://irc-ws.chat.twitch.tv:443"
-- BOTMASTER_RUN=yes
+- BOTMASTER_RUN="yes"
 services:
 - docker
 before_install:

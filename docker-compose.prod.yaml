@@ -1,0 +1,21 @@
+version: '3.3'
+services:
+  web:
+    restart: always
+    image: twitchbambot/bambot:master
+    environment:
+    - BOT_NICKNAME
+    - BOT_TOKEN
+    - COMMAND_PREFIX
+    - NOT_FOUND_RESPONSE
+    - BANGS_ENDPOINT
+    - USERS_ENDPOINT
+    - BANGS_TOKEN
+    - TWITCH_URI
+  watchtower:
+    restart: always
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json
+    command: --schedule "0 4 1 * *" --cleanup

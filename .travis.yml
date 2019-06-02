@@ -19,7 +19,7 @@ before_install:
   -in .env.enc -out .env -d
 - docker build -t bambot .
 script:
-- docker run -it bambot ". bambot/venv/bin/activate && python -m unittest discover"
+- docker run -it bambot "python3 -m unittest bambot.tests"
 deploy:
 - provider: script
   script: bash scripts/deploy.sh master

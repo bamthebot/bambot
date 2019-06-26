@@ -11,15 +11,12 @@ env:
   - USERS_TOKEN="TODO"
   - TWITCH_URI="wss://irc-ws.chat.twitch.tv:443"
   - BOTMASTER_RUN="yes"
-  - secure: SKSGdtx+n6HlvEcok0Op7erruOcyhKRiwFY1ohqpMMmQX6iSZ41tefGEAv/z5toXcgqJy0Cd84gBJMhXsVdhJLUOTttUWKaCPd+Mbdb478+5jxcxHc9wDgVIvh3awb+UNym+aKFFERKwGITNFWzRz4YWHJMJof9b6/4vOz2wUkSwnYVwe4zaOdaHZ5TT3l94Zbc1u3jtZlyNoFBRO04yKFWrzb85kDw9+xlrLaNEB89GjalHIQtNBn5/CkVXEGOdb0u73ns1NhLoYSafW/CdmhkTpREp0jvgv1L1lhGpXlvN97alVZHmXgzo/iUB5MlWRVTI/tr2GtoBrykxV43PYkppccDNAUEc2sUM16NBwcPk7vINLBldpxVMcZFT8WhRP598VPpgUBlPkqmH9QidZMo5juRLZEphoi44FV7eDoLl2QNvuh/OLIb2aFtJNS9a0Z7L8zY6Yld3X+Yat09oJeD2aKxeBCK2ES+u30h77FoV9tYO/flLmn2ztTvpE4QDmU0X0xkhQUIzAoKEnjDkzkJQ2Vd867yMz4S5aAPRPmNrQeXUL7iO9KfYKkCfGO5SM8bRW3IA2CmmPjeD7yLuowynarIGTqIUOE1lr6OklnVO0TjHEbh9d2gxl9jkXRoNCU+lN2Po18Q4Am658Qviv12yNgH4kY/PR2IrPgYyOrQ=
 services:
 - docker
 before_install:
-- openssl aes-256-cbc -K $encrypted_6116320cda83_key -iv $encrypted_6116320cda83_iv
-  -in .env.enc -out .env -d
-- docker build -t bambot .
+- docker-compose -f docker-compose.prod.yaml build -t bambot .
 script:
-- docker run -it bambot python3 -m unittest bambot.tests
+- docker-compose -f docker-compose.test.yaml up
 deploy:
 - provider: script
   script: bash scripts/deploy.sh master

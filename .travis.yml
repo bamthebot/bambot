@@ -14,7 +14,7 @@ env:
 services:
 - docker
 before_install:
-- docker-compose -f docker-compose.prod.yaml build -t bambot .
+- docker build -t bambot .
 script:
 - docker-compose -f docker-compose.test.yaml up
 deploy:

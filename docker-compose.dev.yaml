@@ -1,0 +1,17 @@
+version: '3.3'
+services:
+  web:
+    build: .
+    restart: always
+    environment:
+    - BOT_NICKNAME
+    - BOT_TOKEN
+    - COMMAND_PREFIX
+    - NOT_FOUND_RESPONSE
+    - BANGS_ENDPOINT
+    - USERS_ENDPOINT
+    - BANGS_TOKEN
+    - TWITCH_URI
+    volumes:
+    - ./bambot:/home/bam/bambot/
+    - ./tests:/home/bam/bambot/tests

@@ -6,7 +6,7 @@ from .irc.twitch_irc import TwitchIrcConnection
 
 
 class TwitchBot:
-    nick = os.getenv('BOT_NICKNAME', 'bambot')
+    nick = os.getenv('BOT_NICKNAME', 'bamthebot')
     token = os.getenv('BOT_TOKEN')
     bang_prefix = os.getenv('COMMAND_PREFIX', '!')
     not_found_response = os.getenv('NOT_FOUND_RESPONSE', 'Bang not found, please try with: ')

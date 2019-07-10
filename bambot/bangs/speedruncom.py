@@ -1,65 +1,127 @@
-import json
 import requests
 
 
-class SpeedrunComApiHelpers:
+class SpeedrunAPIRequest:
+    class SpeedrunAPIError(Exception):
+        pass
 
-    @staticmethod
-    def _get_ids(game, category, variable=False, value=False):
-        game_url = 'https://www.speedrun.com/api/v1/games/{}'.format(game)
-        game_req = requests.get(game_url)
-        game_data = json.loads(game_req.text)['data']
-        game_id = game_data['id']
+    leaderboard_url = "https://www.speedrun.com/api/v1/leaderboards"
+    games_url = "https://www.speedrun.com/api/v1/games/"
+    embed_params = "?embed=categories.variables"
 
-        categories_uri, variables_uri =\
-            [x['uri']
-             for x in list(filter(lambda d: d['rel'] == 'variables' or d['rel'] == 'categories', game_data['links']))]
+    def __init__(self, game, category, variable=None, variable_value=None):
+        self.game = game
+        self.category = category
+        self.variable = variable
+        self.variable_value = variable_value
 
-        categories_req = requests.get(str(categories_uri))
-        categories_data = json.loads(categories_req.text)['data']
-        category_data = list(filter(lambda d: category == d['name'], categories_data))[0]
-        category_id = category_data['id']
+        self.game_data = None
+        self.category_data = None
+        self.variable_data = None
 
-        if variable:
-            variables_req = requests.get(str(variables_uri))
-            variables_data = json.loads(variables_req.text)['data']
-            variable_data = list(filter(lambda d: variable == d['name'], variables_data))[0]
-            variable_id = variable_data['id']
-            if value:
-                values_data = variable_data['values']['values']
-                value_id = [k for k, v in values_data.items() if v['label'] == value][0]
-                return game_id, category_id, variable_id, value_id
-            return game_id, category_id, variable_id
-        return game_id, category_id
+    def _get_data_by_name(self, name, data):
+        return [d for d in data if d["name"] == name]
 
-    @staticmethod
-    def get_top_str(game, category, variable=False, value=False):
-        url = 'https://www.speedrun.com/api/v1/leaderboards'
-        if value and variable:
-            game_id, category_id, variable_id, value_id = SpeedrunComApiHelpers._get_ids(
-                game, category, variable, value
+    def _get_names_from_data(self, data):
+        return [d["name"] for d in data]
+
+    def _get_game_data(self):
+        url = self.games_url + self.game + self.embed_params
+        print(url)
+        response = requests.get(url)
+        if response.ok:
+            self.game_data = response.json()["data"]
+            return self
+        raise self.SpeedrunAPIError(
+            "Game not found, please check again with the speedrun.com values."
+        )
+
+    def _get_category_data(self):
+        categories = self.game_data["categories"]["data"]
+        category_data = self._get_data_by_name(self.category, categories)
+        if not len(category_data):
+            category_names = "[{}]".format(
+                "], [".join(self._get_names_from_data(categories))
             )
-            leaderboard_url = '{}/{}/category/{}?var-{}={}'.format(url, game_id, category_id, variable_id, value_id)
-        else:
-            print(game, category)
-            game_id, category_id = SpeedrunComApiHelpers._get_ids(game, category)
-            print(game_id, category_id)
-            # Fix for % in categories
-            if '%' in category and category.strip('%').isdigit():
-                category_id = category.strip('%')
-            leaderboard_url = '{}/{}/category/{}'.format(url, game_id, category_id)
+            raise self.SpeedrunAPIError(
+                f"Category not found. Please try with any of the following category names: {category_names}"
+            )
+        self.category_data = category_data[0]
+        return self
 
-        req = requests.get(leaderboard_url)
-        runs_data = json.loads(req.text)['data']['runs']
-        runs = [run for run in runs_data if int(run['place']) <= 5]
+    def _get_variable_data(self):
+        variables = self.category_data["variables"]["data"]
+        variable_data = self._get_data_by_name(self.variable, variables)
+        if not len(variable_data):
+            variable_names = "[{}]".format(
+                "], [".join(self._get_names_from_data(variables))
+            )
+            raise self.SpeedrunAPIError(
+                f"Variable not found. Please try with any of the following variable names: {variable_names}"
+            )
+        self.variable_data = variable_data[0]
+        return self
 
-        ret = ''
-        for run in runs:
-            run_place = int(run['place'])
-            run_time = run['run']['times']['primary'][2:].lower()
+    def _get_variable_value_id(self):
+        variable_values = self.variable_data["values"]["values"]
+        value_data = [
+            k for k, v in variable_values.items() if v["label"] == self.variable_value
+        ]
+        if not len(value_data):
+            variable_value_names = "[{}]".format(
+                "], [".join([v["label"] for v in variable_values.values()])
+            )
+            raise self.SpeedrunAPIError(
+                f"Variable value not found. Please try with any of the following variable value names: {variable_value_names}"  # noqa
+            )
+        self.variable_value_id = value_data[0]
+        return self
 
-            run_user_uri = run['run']['players'][0]['uri']
-            req = requests.get(run_user_uri)
-            user_name = json.loads(req.text)['data']['names']['international']
-            ret += '{}) {}: {}  '.format(run_place, user_name, run_time)
-        return ret
+    def _get_ids(self):
+        self.game_id = self.game_data["id"]
+        self.category_id = self.category_data["id"]
+        if self.variable_data is not None:
+            self.variable_id = self.variable_data["id"]
+            self._get_variable_value_id()
+        return self
+
+    def _get_leaderboard_data(self):
+        self._get_game_data()._get_category_data()
+        if self.variable is not None:
+            self._get_variable_data()
+        self._get_ids()
+        url = f"{self.leaderboard_url}/{self.game_id}/category/{self.category_id}?embed=players"
+        if self.variable is not None:
+            url += f"&var-{self.variable_id}={self.variable_value_id}"
+        response = requests.get(url)
+        if response.ok:
+            self.leaderboard_data = response.json()["data"]
+            return self
+        raise self.SpeedrunAPIError(
+            "Couldn't fetch leaderboard data. Please contact the project mantainer."
+        )
+
+    def _get_player_name(self, id_):
+        for player in self.leaderboard_data["players"]["data"]:
+            if player["id"] == id_:
+                return player["names"]["international"]
+
+    def get_top_runs(self):
+        self._get_leaderboard_data()
+        return [
+            {
+                "place": run["place"],
+                "player": self._get_player_name(run["run"]["players"][0]["id"]),
+            }
+            for run in self.leaderboard_data["runs"]
+        ]
+
+    def get_top_str(self):
+        try:
+            runs = sorted(self.get_top_runs(), key=lambda r: r["place"])
+        except self.SpeedrunAPIError as speedrun_api_error:
+            return speedrun_api_error.message
+        if len(runs) > 5:
+            runs = runs[:5]
+        run_strings = [f'{run["place"]}) {run["player"]}' for run in runs]
+        return " ".join(run_strings)

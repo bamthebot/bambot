@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 
@@ -25,6 +26,7 @@ class TwitchIrcConnection:
         print(f'PASS oauth:{self.token}')
         await self.websocket.send(f'NICK {self.nick}')
         print(f'NICK {self.nick}')
+        await asyncio.sleep(3)
         await self.websocket.send(f'JOIN #{self.channel}')
         print(f'JOIN #{self.channel}')
 

@@ -16,7 +16,7 @@ class User:
         return self.channel
 
     def __eq__(self, other):
-        return self.user_id == other.user_id
+        return self.channel == other.channel
 
     def __hash__(self):
         return hash(f'{self.user_id}{self.channel}')
@@ -38,3 +38,7 @@ class UsersApi:
             User(usr['id'], usr['twitch_id'], usr['twitch_name'], usr['access_token'])
             for usr in response
         }
+
+    @staticmethod
+    def refresh_user_token(user):
+        pass

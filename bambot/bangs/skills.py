@@ -1,4 +1,4 @@
-from .speedruncom import SpeedrunComApiHelpers
+from .speedruncom import SpeedrunAPIRequest
 
 
 class SkillSet:
@@ -12,9 +12,9 @@ class SkillSet:
 
     def _get_skills(self):
         self.skills = [
-            func for func in dir(self)
-            if callable(getattr(self, func))
-            and not func.startswith("_")
+            func
+            for func in dir(self)
+            if callable(getattr(self, func)) and not func.startswith("_")
         ]
 
 
@@ -25,7 +25,7 @@ class TierOneSkillSet(SkillSet):
         """Bang that returns current tier one special bangs."""
         if self.skills is None:
             self._get_skills()
-        return 'Tier One: ' + ', '.join(self.skills)
+        return "Tier One: " + ", ".join(self.skills)
 
     def tierone_help(self, *args):
         """Bang that returns a description for a given command name.
@@ -60,9 +60,6 @@ class TierOneSkillSet(SkillSet):
         """
         if len(args) == 0:
             return self.leaderboard.__doc__
-        args = args[0].strip().split('/')
+        args = args[0].strip().split("/")
         print(args)
-        try:
-            return SpeedrunComApiHelpers.get_top_str(*args)
-        except IndexError:
-            return 'Speedrun search failed. Try adapting your parameters.'
+        return SpeedrunAPIRequest(*args).get_top_str()

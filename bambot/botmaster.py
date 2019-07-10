@@ -34,6 +34,7 @@ class TwitchBotMaster:
             await asyncio.sleep(self.update_time)
 
     async def check_bots(self):
+        TwitchBot.token = [user.channel_token for user in self.users if user.channel == TwitchBot.nick][0]
         while self.continue_running():
             print('Checking Bots')
             for bot in self.bots:
@@ -47,7 +48,7 @@ class TwitchBotMaster:
 
     async def handle_bots(self):
         while self.continue_running():
-            print('Handling BOTS')
+            print('Handling Bots')
             for bot in self.bots:
                 if not bot.connecting:
                     asyncio.create_task(bot.handle_connection())

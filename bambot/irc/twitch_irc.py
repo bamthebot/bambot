@@ -13,21 +13,23 @@ class TwitchIrcConnection:
     uri = os.getenv('TWITCH_URI')
 
     def __init__(self, channel, nick, token):
-        self.channel = channel
-        self.nick = nick
-        self.token = token
+        self.channel = channel.strip()
+        self.nick = nick.strip()
+        self.token = token.strip()
         self.websocket = None
 
     async def connect(self):
         print(f'Connecting to TwtichIRC ({self.uri})')
         self.websocket = await client.connect(self.uri)
         print(f'Authenticating and entering {self.channel}')
-        await self.websocket.send(f'PASS oauth:{self.token}')
-        print(f'PASS oauth:{self.token}')
+        await self.websocket.send(f'PASS {self.token}')
+        print(f'PASS {self.token}')
+        await asyncio.sleep(3)
         await self.websocket.send(f'NICK {self.nick}')
         print(f'NICK {self.nick}')
         await asyncio.sleep(3)
         await self.websocket.send(f'JOIN #{self.channel}')
+        await asyncio.sleep(3)
         print(f'JOIN #{self.channel}')
 
     async def send_channel_message(self, message):

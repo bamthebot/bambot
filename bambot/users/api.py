@@ -29,7 +29,8 @@ class UsersApi:
     @staticmethod
     def get_users():
         headers = {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': f'Token {UsersApi.token}'
         }
         response = requests.get(UsersApi.endpoint, headers=headers).json()
 

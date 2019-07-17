@@ -15,7 +15,8 @@ class BangsApi:
 
     def get_response(self):
         headers = {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': f'Token {self.token}'
         }
         self.response = requests.get(self.endpoint, headers=headers).json()
 

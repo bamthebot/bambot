@@ -11,6 +11,7 @@ services:
     - BANGS_ENDPOINT
     - USERS_ENDPOINT
     - BANGS_TOKEN
+    - USERS_TOKEN
     - TWITCH_URI
   watchtower:
     restart: always

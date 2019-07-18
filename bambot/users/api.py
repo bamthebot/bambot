@@ -32,6 +32,7 @@ class UsersApi:
             'Content-Type': 'application/json',
             'Authorization': f'Token {UsersApi.token}'
         }
+        print(headers)
         response = requests.get(UsersApi.endpoint, headers=headers).json()
 
         print(response)

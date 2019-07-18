@@ -18,6 +18,7 @@ class BangsApi:
             'Content-Type': 'application/json',
             'Authorization': f'Token {self.token}'
         }
+        print(headers)
         self.response = requests.get(self.endpoint, headers=headers).json()
 
     def get_user_bangs(self, user_id, update=False):

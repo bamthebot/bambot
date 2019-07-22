@@ -120,7 +120,7 @@ class SpeedrunAPIRequest:
         try:
             runs = sorted(self.get_top_runs(), key=lambda r: r["place"])
         except self.SpeedrunAPIError as speedrun_api_error:
-            return speedrun_api_error.message
+            return str(speedrun_api_error)
         if len(runs) > 5:
             runs = runs[:5]
         run_strings = [f'{run["place"]}) {run["player"]}' for run in runs]

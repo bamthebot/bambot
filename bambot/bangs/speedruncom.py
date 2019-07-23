@@ -1,5 +1,5 @@
 import requests
-
+from datetime import timedelta
 
 class SpeedrunAPIRequest:
     class SpeedrunAPIError(Exception):
@@ -112,6 +112,7 @@ class SpeedrunAPIRequest:
             {
                 "place": run["place"],
                 "player": self._get_player_name(run["run"]["players"][0]["id"]),
+                "time": run["times"]["primary_t"]
             }
             for run in self.leaderboard_data["runs"]
         ]
@@ -123,5 +124,5 @@ class SpeedrunAPIRequest:
             return str(speedrun_api_error)
         if len(runs) > 5:
             runs = runs[:5]
-        run_strings = [f'{run["place"]}) {run["player"]}' for run in runs]
+        run_strings = [f'{run["place"]}) {run["player"]} [{run["time"]}]' for run in runs]
         return " ".join(run_strings)

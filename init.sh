@@ -1,3 +1,3 @@
 #!/bin/bash
-source .env
-docker-compose -f docker-compose.prod.yaml up -d
+docker-compose -f docker-compose.prod.yaml up --force-recreate --build  --remove-orphans -d 
+docker image prune -f

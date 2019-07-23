@@ -1,6 +1,7 @@
 import requests
 from datetime import timedelta
 
+
 class SpeedrunAPIRequest:
     class SpeedrunAPIError(Exception):
         pass
@@ -108,11 +109,12 @@ class SpeedrunAPIRequest:
 
     def get_top_runs(self):
         self._get_leaderboard_data()
+        print(self.leaderboard_data["runs"][0])
         return [
             {
                 "place": run["place"],
                 "player": self._get_player_name(run["run"]["players"][0]["id"]),
-                "time": run["times"]["primary_t"]
+                "time": str(timedelta(seconds=run["run"]["times"]["primary_t"])).strip("0").strip(":"),
             }
             for run in self.leaderboard_data["runs"]
         ]
@@ -124,5 +126,7 @@ class SpeedrunAPIRequest:
             return str(speedrun_api_error)
         if len(runs) > 5:
             runs = runs[:5]
-        run_strings = [f'{run["place"]}) {run["player"]} [{run["time"]}]' for run in runs]
+        run_strings = [
+            f'{run["place"]}) {run["player"]} [{run["time"]}]' for run in runs
+        ]
         return " ".join(run_strings)

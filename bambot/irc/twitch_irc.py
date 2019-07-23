@@ -23,14 +23,8 @@ class TwitchIrcConnection:
         self.websocket = await client.connect(self.uri)
         print(f'Authenticating and entering {self.channel}')
         await self.websocket.send(f'PASS {self.token}')
-        print(f'PASS {self.token}')
-        await asyncio.sleep(3)
         await self.websocket.send(f'NICK {self.nick}')
-        print(f'NICK {self.nick}')
-        await asyncio.sleep(3)
         await self.websocket.send(f'JOIN #{self.channel}')
-        await asyncio.sleep(3)
-        print(f'JOIN #{self.channel}')
 
     async def send_channel_message(self, message):
         print(f'SENDING: {message}')

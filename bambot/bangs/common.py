@@ -21,12 +21,14 @@ class BangsApi:
         self.response = requests.get(self.endpoint, headers=headers).json()
 
     def get_user_bangs(self, user_id, update=False):
+        breakpoint()
         if update:
             self.get_response()
         print(f'Getting bangs for user-id {user_id}')
         bangs = [
             Bang(usrbng['command'], usrbng['response'])
             for usrbng in self.response
+            if str(usrbng['user']) == str(user_id)
         ]
         print(f'Bangs: {[bang.command for bang in bangs]}')
         return bangs

@@ -1,4 +1,5 @@
 import os
+import websockets
 
 from .bangs.common import BangSet
 from .bangs.common import SpecialBangSet
@@ -28,8 +29,11 @@ class TwitchBot:
             await self.irc_connection.connect()
         while self.irc_connection.websocket.open:
             print(f'Handling {self.channel}\'s connection.')
-            async for message in self.irc_connection:
-                await self.handle_message(message)
+            try:
+                async for message in self.irc_connection:
+                    await self.handle_message(message)
+            except websockets.exceptions.ConnectionClosed:
+                await self.irc_connection.connect()
 
     async def handle_message(self, message):
         if self.is_bang(message):

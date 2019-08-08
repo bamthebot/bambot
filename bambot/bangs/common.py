@@ -21,7 +21,6 @@ class BangsApi:
         self.response = requests.get(self.endpoint, headers=headers).json()
 
     def get_user_bangs(self, user_id, update=False):
-        breakpoint()
         if update:
             self.get_response()
         print(f'Getting bangs for user-id {user_id}')

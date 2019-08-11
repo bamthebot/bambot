@@ -36,7 +36,7 @@ class UsersApi:
 
         print(response)
         return {
-            User(usr['id'], usr['twitch_id'], usr['twitch_name'], usr['access_token'])
+            User(usr['user'], usr['twitch_id'], usr['twitch_name'], usr['access_token'])
             for usr in response
         }
 

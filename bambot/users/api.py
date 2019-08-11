@@ -6,7 +6,7 @@ class User:
     def __init__(self, user_id, twitch_id, twitch_name, token):
         self.user_id = user_id
         self.twitch_id = twitch_id
-        self.channel = twitch_name
+        self.channel = twitch_name.lower()
         self.channel_token = token
 
     def __repr__(self):

@@ -22,6 +22,10 @@ class TwitchIrcConnection:
         print(f'Connecting to TwtichIRC ({self.uri})')
         self.websocket = await client.connect(self.uri)
         print(f'Authenticating and entering {self.channel}')
+        print(f'PASS {self.token}')
+        print(f'NICK {self.nick}')
+        print(f'JOIN #{self.channel}')
+
         await self.websocket.send(f'PASS {self.token}')
         await self.websocket.send(f'NICK {self.nick}')
         await self.websocket.send(f'JOIN #{self.channel}')

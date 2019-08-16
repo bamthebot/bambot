@@ -19,6 +19,8 @@ class TwitchIrcConnection:
         self.websocket = None
 
     async def connect(self):
+        if self.websocket is not None:
+            self.websocket.close()
         print(f'Connecting to TwtichIRC ({self.uri})')
         self.websocket = await client.connect(self.uri)
         print(f'Authenticating and entering {self.channel}')

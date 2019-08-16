@@ -84,14 +84,25 @@ class SpecialResponse:
 
 class SpecialBangSet(BangSet):
 
-    def __init__(self, user_id):
+    def __init__(self, user_id, skill_set=None):
         self.user_id = user_id
-        self.tier_one = skills.TierOneSkillSet()
+        if skill_set is None:
+            self.skill_set = skills.TierOneSkillSet()
+        else:
+            self.skill_set = skill_set
         self.update()
 
     def update(self):
         self.bangs = [
-            SpecialBang(skill, getattr(self.tier_one, skill))
-            for skill in self.tier_one
+            SpecialBang(skill, getattr(self.skill_set, skill))
+            for skill in self.skill_set
         ]
         self.bang_commands = [bang.command for bang in self.bangs]
+
+    def process_command(self, command, command_args=None):
+        response = self[command]
+        if command_args is not None:
+            args = " ".join(command_args)
+            return response.process_args(args)
+        else:
+            return response.process_args()

@@ -115,9 +115,7 @@ class SpeedrunAPIRequest:
             players = run["run"]["players"]
 
             player_names = [
-                p["name"]
-                if p["rel"] == "guest"
-                else self._get_player_name(p["id"])
+                p["name"] if p["rel"] == "guest" else self._get_player_name(p["id"])
                 for p in players
             ]
             player_name = " and ".join(player_names)

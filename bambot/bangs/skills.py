@@ -55,8 +55,8 @@ class TierOneSkillSet(SkillSet):
         Usage:
             "!leaderboard <game>/<category>[/variable/variable_value]"
         Examples:
-            "!leaderborad botw/Any%"
-            "!leaderborad botw/Any%/Amiibo/No Amiboo"
+            "!leaderboard botw/Any%"
+            "!leaderboard botw/Any%/Amiibo/No Amiboo"
         """
         if len(args) == 0:
             return self.leaderboard.__doc__

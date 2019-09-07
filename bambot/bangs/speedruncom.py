@@ -104,28 +104,45 @@ class SpeedrunAPIRequest:
 
     def _get_player_name(self, id_):
         for player in self.leaderboard_data["players"]["data"]:
-            if player["id"] == id_:
+            if "id" in player and player["id"] == id_:
                 return player["names"]["international"]
 
     def get_top_runs(self):
         self._get_leaderboard_data()
-        print(self.leaderboard_data["runs"][0])
-        return [
-            {
-                "place": run["place"],
-                "player": self._get_player_name(run["run"]["players"][0]["id"]),
-                "time": str(timedelta(seconds=run["run"]["times"]["primary_t"])).strip("0").strip(":"),
-            }
-            for run in self.leaderboard_data["runs"]
-        ]
+        top_runs = []
+        i = 0
+        for run in self.leaderboard_data["runs"]:
+            players = run["run"]["players"]
+
+            player_names = [
+                p["name"]
+                if p["rel"] == "guest"
+                else self._get_player_name(p["id"])
+                for p in players
+            ]
+            player_name = " and ".join(player_names)
+            top_runs.append(
+                {
+                    "place": run["place"],
+                    "player": player_name,
+                    "time": str(timedelta(seconds=run["run"]["times"]["primary_t"]))
+                    .strip("0")
+                    .strip(":"),
+                }
+            )
+            i += 1
+            if i >= 5:
+                break
+        return top_runs
 
     def get_top_str(self):
         try:
             runs = sorted(self.get_top_runs(), key=lambda r: r["place"])
         except self.SpeedrunAPIError as speedrun_api_error:
             return str(speedrun_api_error)
-        if len(runs) > 5:
-            runs = runs[:5]
+        except Exception as e:
+            print(e)
+            return "An unexpected error occurred. Please contact the project mantainer."
         run_strings = [
             f'{run["place"]}) {run["player"]} [{run["time"]}]' for run in runs
         ]

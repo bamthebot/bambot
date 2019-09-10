@@ -1,6 +1,8 @@
 import os
 import websockets
 
+from datetime import datetime, timedelta
+
 from .bangs.common import BangSet
 from .bangs.common import SpecialBangSet
 from .bangs.skills import SkillSet
@@ -29,6 +31,7 @@ class TwitchBot:
         self.user_id = user.user_id
         self.irc_connection = TwitchIrcConnection(self.channel, self.nick, self.token)
         self.user_bang_set = BangSet(self.user_id)
+        self.last_updated = datetime.now()
         self.user_special_bang_set = SpecialBangSet(self.user_id)
         self.control_bang_set = SpecialBangSet(
             self.user_id,
@@ -52,6 +55,11 @@ class TwitchBot:
                 print("Websocket connection closed. Reconnecting websocket.")
                 await self.irc_connection.connect()
 
+    async def update_bangs(self):
+        print("Updating Bangs!")
+        self.user_bang_set.update()
+        self.last_updated = datetime.now()
+
     async def handle_message(self, message):
         if self.is_bang(message):
             response = self.get_response(message)
@@ -69,8 +77,8 @@ class TwitchBot:
         return False
 
     def get_response(self, message):
-        print("Updating Bangs!")
-        self.user_bang_set.update()
+        if self.last_updated < datetime.now() - timedelta(minutes=3):
+            self.update_bangs()
         print("Getting response for", message)
         message = message.strip().strip(self.bang_prefix).split(" ")
         command = message[0]

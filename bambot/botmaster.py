@@ -29,6 +29,8 @@ class TwitchBotMaster:
                 bot = [tb for tb in self.bots if tb.user == user][0]
                 await bot.close_connection()
             self.bots = [tb for tb in self.bots if tb.user not in deleted_users]
+            for bot in self.bots:
+                await bot.update_bangs()
             if once:
                 break
             await asyncio.sleep(self.update_time)

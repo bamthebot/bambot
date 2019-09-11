@@ -11,7 +11,7 @@ class SpeedrunAPIRequest:
     embed_params = "?embed=categories.variables"
 
     def __init__(self, game, category, variable=None, variable_value=None):
-        self.game = game
+        self.game = game.lower()
         self.category = category
         self.variable = variable
         self.variable_value = variable_value

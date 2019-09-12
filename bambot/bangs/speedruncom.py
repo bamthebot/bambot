@@ -107,7 +107,7 @@ class SpeedrunAPIRequest:
             if "id" in player and player["id"] == id_:
                 return player["names"]["international"]
 
-    def get_top_runs(self):
+    def get_top_runs(self, number_of_runs=5):
         self._get_leaderboard_data()
         top_runs = []
         i = 0
@@ -129,13 +129,13 @@ class SpeedrunAPIRequest:
                 }
             )
             i += 1
-            if i >= 5:
+            if i >= number_of_runs:
                 break
         return top_runs
 
     def get_top_str(self):
         try:
-            runs = sorted(self.get_top_runs(), key=lambda r: r["place"])
+            runs = sorted(self.get_top_runs(5), key=lambda r: r["place"])
         except self.SpeedrunAPIError as speedrun_api_error:
             return str(speedrun_api_error)
         except Exception as e:
@@ -145,3 +145,16 @@ class SpeedrunAPIRequest:
             f'{run["place"]}) {run["player"]} [{run["time"]}]' for run in runs
         ]
         return " ".join(run_strings)
+
+    def get_wr(self):
+        try:
+            run = self.get_top_runs(1)[0]
+        except self.SpeedrunAPIError as speedrun_api_error:
+            return str(speedrun_api_error)
+        except Exception as e:
+            print(e)
+            return "An unexpected error occurred. Please contact the project mantainer."
+        response = f'The WR for {self.game}\'s {self.category} is {run["time"]} by {run["player"]}.'
+        if self.variable_value is not None:
+            return response + f"[{self.variable_value}]"
+        return response

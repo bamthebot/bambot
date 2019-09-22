@@ -63,3 +63,54 @@ class TierOneSkillSet(SkillSet):
         args = args[0].strip().split("/")
         print(args)
         return SpeedrunAPIRequest(*args).get_top_str()
+
+    def worldrecord(self, *args):
+        """Bang that consumes the speedrun.com api to fetch a game's
+        world record data.
+
+        Args:
+            a string containing slash separated values in the following order.
+            game/category/variable/variable-value
+        Usage:
+            "!worldrecord <game>/<category>[/variable/variable_value]"
+        Examples:
+            "!worldrecord botw/Any%"
+            "!worldrecord botw/Any%/Amiibo/No Amiboo"
+        """
+
+        if len(args) == 0:
+            return self.worldrecord.__doc__
+        args = args[0].strip().split("/")
+        return SpeedrunAPIRequest(*args).get_wr()
+
+    def personalbest(self, *args):
+        """Bang that gets the PB from a player on a given game.
+
+        Args:
+            a string containing slash separated values in the following order.
+            player/game/category/variable/variable-value
+        Usage:
+            "!personalbest player/<game>/<category>[/variable/variable_value]"
+        Examples:
+            "!personalbest bambot/botw/Any%"
+            "!personalbest bambot/botw/Any%/Amiibo/No Amiboo"
+        """
+        if len(args) == 0:
+            return self.personalbest.__doc__
+        player, *args = args[0].strip().split("/")
+        return SpeedrunAPIRequest(*args).get_pbs(player, all_games=False)
+
+    def personalbests(self, *args):
+        """Bang that gets the PBs from a player on all of his games.
+
+        Args:
+            a player name
+        Usage:
+            "!personalbests <player>"
+        Examples:
+            "!personalbests bambot"
+        """
+        if len(args) == 0:
+            return self.personalbest.__doc__
+        player, *args = args[0].strip().split("/")
+        return SpeedrunAPIRequest(None, None).get_pbs(player, all_games=True)

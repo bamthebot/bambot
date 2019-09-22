@@ -12,4 +12,4 @@ services:
     - USERS_ENDPOINT
     - BANGS_TOKEN
     - TWITCH_URI
-    command: python3 -m unittest bambot.tests
+    command: python3 -m pytest

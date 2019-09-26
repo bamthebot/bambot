@@ -100,7 +100,7 @@ class TierOneSkillSet(SkillSet):
         player, *args = args[0].strip().split("/")
         return await SpeedrunAPIRequest(*args).get_pbs(player, all_games=False)
 
-    async def personalbests(self, *args):
+    async def allpersonalbests(self, *args):
         """Bang that gets the PBs from a player on all of his games.
 
         Args:

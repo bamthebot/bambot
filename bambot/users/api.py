@@ -25,6 +25,7 @@ class User:
 class UsersApi:
     endpoint = os.getenv('USERS_ENDPOINT')
     token = os.getenv('USERS_TOKEN')
+    user_override = os.getenv("USER_OVERRIDE", None)
 
     @staticmethod
     def get_users():
@@ -35,6 +36,9 @@ class UsersApi:
         response = requests.get(UsersApi.endpoint, headers=headers).json()
 
         print(response)
+        if UsersApi.user_override is not None:
+            response = [user for user in response if user['twitch_name'] == UsersApi.user_override]
+            print(response)
         return {
             User(usr['user'], usr['twitch_id'], usr['twitch_name'], usr['access_token'])
             for usr in response

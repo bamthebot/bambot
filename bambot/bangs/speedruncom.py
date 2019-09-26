@@ -3,9 +3,6 @@ import requests
 from datetime import timedelta
 
 
-http_client = aiohttp.ClientSession()
-
-
 class SpeedrunAPIRequest:
     class SpeedrunAPIError(Exception):
         pass
@@ -14,6 +11,7 @@ class SpeedrunAPIRequest:
     games_url = "https://www.speedrun.com/api/v1/games/"
     pbs_base_url = "https://www.speedrun.com/api/v1/users/{}/personal-bests"
     embed_params = "?embed=categories.variables"
+    http_client = None
 
     def __init__(self, game, category, variable=None, variable_value=None):
         self.game = game.lower() if game is not None else None
@@ -121,6 +119,8 @@ class SpeedrunAPIRequest:
         top_runs = []
         i = 0
         for run in self.leaderboard_data["runs"]:
+            if run["place"] == 0:
+                continue
             players = run["run"]["players"]
 
             player_names = [
@@ -193,20 +193,23 @@ class SpeedrunAPIRequest:
         return personal_bests
 
     async def get_pbs(self, player, all_games=False):
+        if SpeedrunAPIRequest.http_client is None:
+            SpeedrunAPIRequest.http_client = aiohttp.ClientSession()
+
         def suggestion_if_empty(runs, suggestion):
             if len(runs) == 0:
                 raise self.SpeedrunAPIError(f"{suggestion}")
 
         pbs_url = self.pbs_base_url.format(player)
         params = {"embed": "category.variables,game"}
-        async with http_client.get(pbs_url, params=params) as response:
-            if response.status == 200:
-                runs = await response.json()
-                runs = runs["data"]
-            else:
-                raise self.SpeedrunAPIError(
-                    "Couldn't get personal bests data. Please contact the project mantainer."
-                )
+        response = await SpeedrunAPIRequest.http_client.get(pbs_url, params=params)
+        if response.status == 200:
+            runs = await response.json()
+            runs = runs["data"]
+        else:
+            raise self.SpeedrunAPIError(
+                "Couldn't get personal bests data. Please contact the project mantainer."
+            )
 
         if all_games:
             personal_bests = self.build_personal_bests(runs)

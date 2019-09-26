@@ -1,3 +1,4 @@
+import asyncio
 import os
 import websockets
 
@@ -62,7 +63,7 @@ class TwitchBot:
 
     async def handle_message(self, message):
         if self.is_bang(message):
-            response = self.get_response(message)
+            response = await self.get_response(message)
             if not self.muted or self.just_muted:
                 self.just_muted = False
                 await self.irc_connection.send_channel_message(response)
@@ -76,7 +77,7 @@ class TwitchBot:
             return True
         return False
 
-    def get_response(self, message):
+    async def get_response(self, message):
         if self.last_updated < datetime.now() - timedelta(minutes=3):
             self.update_bangs()
         print("Getting response for", message)
@@ -89,10 +90,10 @@ class TwitchBot:
         response = None
 
         if command in self.control_bang_set:
-            response = self.control_bang_set.process_command(command, command_args)
+            response = await self.control_bang_set.process_command(command, command_args)
         elif command in self.user_special_bang_set:
             print("Command is special")
-            response = self.user_special_bang_set.process_command(command, command_args)
+            response = await self.user_special_bang_set.process_command(command, command_args)
         elif command in self.user_bang_set:
             print("Command is normal")
             response = self.user_bang_set[command]
@@ -100,7 +101,7 @@ class TwitchBot:
             response = self.not_found_response + ", ".join(self.get_commands())
 
         if self.is_bang(response):
-            return self.get_response(response)
+            return await self.get_response(response)
         return response
 
     def get_commands(self):
@@ -114,7 +115,7 @@ class TwitchBot:
         await self.irc_connection.disconnect()
 
     # Control Skills
-    def mute(self, *args, **kwargs):
+    async def mute(self, *args, **kwargs):
         """Makes the bot shut up"""
         self.muted = not self.muted  # toogle
         if self.muted:
@@ -122,7 +123,7 @@ class TwitchBot:
             return "I've been muted :("
         return "I'm back! :D"
 
-    def help(self, *args, **kwargs):
+    async def help(self, *args, **kwargs):
         """Displays the help text for a special command"""
         if len(args) == 0:
             return self.help.__doc__

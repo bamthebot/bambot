@@ -25,7 +25,7 @@ async def test_worldrecord():
 @pytest.mark.asyncio
 async def test_personalbests():
     tier_one = TierOneSkillSet()
-    response = await tier_one.personalbests("Wolhaiksong")
+    response = await tier_one.allpersonalbests("Wolhaiksong")
     assert "Personal bests for Wolhaiksong are: " in response
 
     response = await tier_one.personalbest("Wolhaiksong/botw/Any%")

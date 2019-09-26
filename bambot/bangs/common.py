@@ -78,8 +78,8 @@ class SpecialResponse:
     def __init__(self, bang_skill):
         self.bang_skill = bang_skill
 
-    def process_args(self, *args):
-        return self.bang_skill(*args)
+    async def process_args(self, *args):
+        return await self.bang_skill(*args)
 
 
 class SpecialBangSet(BangSet):
@@ -99,10 +99,10 @@ class SpecialBangSet(BangSet):
         ]
         self.bang_commands = [bang.command for bang in self.bangs]
 
-    def process_command(self, command, command_args=None):
+    async def process_command(self, command, command_args=None):
         response = self[command]
         if command_args is not None:
             args = " ".join(command_args)
-            return response.process_args(args)
+            return await response.process_args(args)
         else:
-            return response.process_args()
+            return await response.process_args()

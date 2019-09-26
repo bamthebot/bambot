@@ -21,13 +21,13 @@ class SkillSet:
 class TierOneSkillSet(SkillSet):
     tier = 1
 
-    def tierone(self, *args):
+    async def tierone(self, *args):
         """Bang that returns current tier one special bangs."""
         if self.skills is None:
             self._get_skills()
         return "Tier One: " + ", ".join(self.skills)
 
-    def tierone_help(self, *args):
+    async def tierone_help(self, *args):
         """Bang that returns a description for a given command name.
 
         Args:
@@ -45,7 +45,7 @@ class TierOneSkillSet(SkillSet):
         else:
             return self.tierone_help.__doc__
 
-    def leaderboard(self, *args):
+    async def leaderboard(self, *args):
         """Bang that consumes the speedrun.com api to fetch a game's
         top speedruns data.
 
@@ -64,7 +64,7 @@ class TierOneSkillSet(SkillSet):
         print(args)
         return SpeedrunAPIRequest(*args).get_top_str()
 
-    def worldrecord(self, *args):
+    async def worldrecord(self, *args):
         """Bang that consumes the speedrun.com api to fetch a game's
         world record data.
 
@@ -83,7 +83,7 @@ class TierOneSkillSet(SkillSet):
         args = args[0].strip().split("/")
         return SpeedrunAPIRequest(*args).get_wr()
 
-    def personalbest(self, *args):
+    async def personalbest(self, *args):
         """Bang that gets the PB from a player on a given game.
 
         Args:
@@ -98,9 +98,9 @@ class TierOneSkillSet(SkillSet):
         if len(args) == 0:
             return self.personalbest.__doc__
         player, *args = args[0].strip().split("/")
-        return SpeedrunAPIRequest(*args).get_pbs(player, all_games=False)
+        return await SpeedrunAPIRequest(*args).get_pbs(player, all_games=False)
 
-    def personalbests(self, *args):
+    async def personalbests(self, *args):
         """Bang that gets the PBs from a player on all of his games.
 
         Args:
@@ -113,4 +113,4 @@ class TierOneSkillSet(SkillSet):
         if len(args) == 0:
             return self.personalbest.__doc__
         player, *args = args[0].strip().split("/")
-        return SpeedrunAPIRequest(None, None).get_pbs(player, all_games=True)
+        return await SpeedrunAPIRequest(None, None).get_pbs(player, all_games=True)

@@ -111,6 +111,6 @@ class TierOneSkillSet(SkillSet):
             "!personalbests bambot"
         """
         if len(args) == 0:
-            return self.personalbest.__doc__
+            return self.allpersonalbests.__doc__
         player, *args = args[0].strip().split("/")
         return await SpeedrunAPIRequest(None, None).get_pbs(player, all_games=True)

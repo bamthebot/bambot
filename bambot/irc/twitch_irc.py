@@ -10,6 +10,7 @@ logger.addHandler(logging.StreamHandler())
 
 
 class TwitchIrcConnection:
+    MAX_MESSAGES_CHARCOUNT = 500
     uri = os.getenv('TWITCH_URI')
 
     def __init__(self, channel, nick, token):
@@ -17,6 +18,7 @@ class TwitchIrcConnection:
         self.nick = nick.strip()
         self.token = token.strip()
         self.websocket = None
+        self.message_split_character = " "
 
     async def connect(self):
         if self.websocket is not None:
@@ -32,9 +34,25 @@ class TwitchIrcConnection:
         await self.websocket.send(f'NICK {self.nick}')
         await self.websocket.send(f'JOIN #{self.channel}')
 
+    def split_channel_message(self, message):
+        breakpoint()
+        messages = []
+        while len(message) > self.MAX_MESSAGES_CHARCOUNT:
+            split_message = message[:self.MAX_MESSAGES_CHARCOUNT]
+            last_split_character = split_message.rfind(self.message_split_character)
+            partial_message, message = message[:last_split_character], message[last_split_character:]
+            messages.append(partial_message)
+        messages.append(message)
+        return messages
+
     async def send_channel_message(self, message):
-        print(f'SENDING: {message}')
-        await self.websocket.send(f'PRIVMSG #{self.channel.lower()} :{message}')
+        if len(message) > self.MAX_MESSAGES_CHARCOUNT:
+            messages = self.split_channel_message(message)
+        else:
+            messages = [message]
+        for message in messages:
+            print(f'SENDING: {message}')
+            await self.websocket.send(f'PRIVMSG #{self.channel.lower()} :{message}')
 
     async def send_pong(self):
         print('PONGED')

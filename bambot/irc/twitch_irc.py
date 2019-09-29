@@ -35,7 +35,6 @@ class TwitchIrcConnection:
         await self.websocket.send(f'JOIN #{self.channel}')
 
     def split_channel_message(self, message):
-        breakpoint()
         messages = []
         while len(message) > self.MAX_MESSAGES_CHARCOUNT:
             split_message = message[:self.MAX_MESSAGES_CHARCOUNT]

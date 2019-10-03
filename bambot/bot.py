@@ -20,7 +20,6 @@ class TwitchBot:
 
     nick = os.getenv("BOT_NICKNAME", "bamthebot")
     token = os.getenv("BOT_TOKEN")
-    bang_prefix = os.getenv("COMMAND_PREFIX", "!")
     not_found_response = os.getenv(
         "NOT_FOUND_RESPONSE", "Bang not found, please try with: "
     )
@@ -30,6 +29,7 @@ class TwitchBot:
         self.channel = user.channel
         self.channel_token = user.channel_token
         self.user_id = user.user_id
+        self.bang_prefix = user.bang_prefix
         self.irc_connection = TwitchIrcConnection(self.channel, self.nick, self.token)
         self.user_bang_set = BangSet(self.user_id)
         self.last_updated = datetime.now()

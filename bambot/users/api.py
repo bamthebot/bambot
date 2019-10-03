@@ -3,11 +3,12 @@ import requests
 
 
 class User:
-    def __init__(self, user_id, twitch_id, twitch_name, token):
+    def __init__(self, user_id, twitch_id, twitch_name, token, bang_prefix):
         self.user_id = user_id
         self.twitch_id = twitch_id
         self.channel = twitch_name.lower()
         self.channel_token = token
+        self.bang_prefix = bang_prefix
 
     def __repr__(self):
         return self.channel
@@ -40,7 +41,7 @@ class UsersApi:
             response = [user for user in response if user['twitch_name'] == UsersApi.user_override]
             print(response)
         return {
-            User(usr['user'], usr['twitch_id'], usr['twitch_name'], usr['access_token'])
+            User(usr['user'], usr['twitch_id'], usr['twitch_name'], usr['access_token'], usr['command_character'])
             for usr in response
         }
 

@@ -31,6 +31,11 @@ class TwitchBotMaster:
             self.bots = [tb for tb in self.bots if tb.user not in deleted_users]
             for bot in self.bots:
                 await bot.update_bangs()
+                try:
+                    user = next(user for user in self.users if user == bot.user)
+                    bot.bang_prefix = user.bang_prefix
+                except StopIteration:
+                    continue
             if once:
                 break
             await asyncio.sleep(self.update_time)

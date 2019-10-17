@@ -62,6 +62,7 @@ class TwitchBot:
         self.last_updated = datetime.now()
 
     async def handle_message(self, message):
+        message = self.user.replace_with_blasts(message)
         if self.is_bang(message):
             response = await self.get_response(message)
             if not self.muted or self.just_muted:
@@ -100,6 +101,7 @@ class TwitchBot:
         else:
             response = self.not_found_response + ", ".join(self.get_commands())
 
+        response = self.user.replace_with_blasts(response)
         if self.is_bang(response):
             return await self.get_response(response)
         return response

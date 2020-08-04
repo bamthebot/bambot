@@ -21,7 +21,7 @@ class TwitchBot:
     nick = os.getenv("BOT_NICKNAME", "bamthebot")
     token = os.getenv("BOT_TOKEN")
     not_found_response = os.getenv(
-        "NOT_FOUND_RESPONSE", "Bang not found, please try with: "
+        "NOT_FOUND_RESPONSE", "Command not found. Try with !list, !wr or !help"
     )
 
     def __init__(self, user):
@@ -36,7 +36,7 @@ class TwitchBot:
         self.user_special_bang_set = SpecialBangSet(self.user_id)
         self.control_bang_set = SpecialBangSet(
             self.user_id,
-            skill_set=self.ControlSkillSet(self.user_id, [self.mute, self.help]),
+            skill_set=self.ControlSkillSet(self.user_id, [self.mute, self.help, self.list]),
         )
         self.muted = False
         self.just_muted = False
@@ -99,7 +99,7 @@ class TwitchBot:
             print("Command is normal")
             response = self.user_bang_set[command]
         else:
-            response = self.not_found_response + ", ".join(self.get_commands())
+            response = self.not_found_response
 
         response = self.user.replace_with_blasts(response)
         if self.is_bang(response):
@@ -137,3 +137,7 @@ class TwitchBot:
                 docs.append(self.control_bang_set[command].bang_skill.__doc__)
 
         return "| ".join(docs)
+
+    async def list(self, *args, **kwargs):
+        """List all commands available."""
+        return f"Command list: {', '.join(self.get_commands())}"
